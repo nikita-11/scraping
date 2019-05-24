@@ -1,0 +1,54 @@
+# Importing all libraries
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+from time import sleep
+from random import randint 
+
+# Function to scrape the number of followers for any user
+def scrape(url,name):
+    """Scrape number of followers for each GIT user in Melbourne."""
+    header = requests.utils.default_headers()
+    req = requests.get(url, header)
+    raw_content = req.content
+    edited_cont = BeautifulSoup(raw_content, 'html.parser')
+    """Extracting the anchor tags which have specific href reference"""
+    num_followers = edited_cont.find("a", href=name+"?tab=followers").find("span").string.strip()
+    if(num_followers[-1]=='k'):
+        num_followers= float(num_followers[:-1])*1000
+    elif(num_followers[-1]=='m'):
+        num_followers= float(num_followers[:-1])*1000000
+    else :
+        num_followers=float(num_followers)
+    return num_followers
+   
+
+# Getting a list of all the user_names
+headers = requests.utils.default_headers()
+list_user_names=[]
+for i in range(1,101):
+    url_link = "https://github.com/search?p="+str(i)+"&q=location%3Amelbourne&type=Users"
+    data = requests.get(url_link,headers)
+    data_edited= BeautifulSoup(data.content,'html.parser')
+    data_list= data_edited.find_all("a","d-table")
+    print(i,len(data_list))
+    for item in data_list:
+        list_user_names.append(item.get('href'))
+    sleep(randint(8,15))
+
+# Storing user and its number of followers for each user from melbourne
+for name in list_user_names:
+    url='https://github.com'+name
+    number_followers=scrape(url,name)
+    df.loc[len(df)]=name,number_followers
+    sleep(randint(1,5))
+
+# function to give the final number of followers
+def perc_followers(url):
+    index_name= url.find('.com')
+    user_name = url[index_name+4:]
+    num_foll = scrape(url,user_name)
+    df_list =list(df['Followers']) + [num_foll]
+    df_list= sorted(df_list,reverse=False)
+    df_appended = df_list.index(num_foll) 
+    return('%s is in the top %d%% of Melbourne Github users based on followers' % (url,df_appended/len(df_list)*100))
