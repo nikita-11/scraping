@@ -1,4 +1,9 @@
 "scraping" 
+
+Instructions to use Anaconda and Jupyter Notebook for the code wirtten below :
+https://jupyter.readthedocs.io/en/latest/install.html
+https://www.codecademy.com/articles/how-to-use-jupyter-notebooks
+
 Python Libraries used from PyPI-  BeautifulSoup, Pandas and Requests.
 
 Next the scrape function is built to scrape the number of followers for any given url. 
